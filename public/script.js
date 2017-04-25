@@ -52,6 +52,14 @@ $('#permute-in-main').on('click', function(event) {
   // Prepare for permutations
   $('#permutation-message').text("Calculating in main...");
   $('#permutation-results').empty();
+                         
+  var worker = new Worker('permutations.js');
+  worker.postMessage($('#n').val());
+  worker.onmessage(function(permutations){
+    permutations.forEach(function(perm){
+                         $('<li>').text(perm).appendTo('#permutation-results');
+                         });
+                   });
 
   // Perform permutatations
   permutations(n).forEach(function(perm) {
