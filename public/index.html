@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Web Worker Example</title>
+    <link href="style.css" type="text/css" rel="stylesheet">
+  </head>
+  <body>
+    <h1>Web Worker Example</h1>
+    <p>
+      This example demonstrates how to use web workers, a HTML5
+      technology that allows for parallel threads to be run
+      by a webpage.  Essentially, a new thread running a JavaScript
+      interpreter is spawned for each web worker, which can communicate
+      with the main thread (the browser's main JavaScript interpreter)
+      through message passing.
+    </p>
+    <h2>Long-Running Process</h2>
+    <p>
+      One of the primary uses of web workers is to move long-running
+      processes out of the main thread.  This is important as the
+      main thread is used for event handling.  If a long-running process
+      is running there, it blocks event handling until it finishes.
+      The browser quits responding and may even inform the user that
+      a script is misbehaiving.
+    </p>
+    <p>
+      We can see this with the process triggered by the button below,
+      which creates a permutation of n items:
+    </p>
+    <p>
+      <label for="n">Number of permutations to generate:
+        <input name="n" id="n" type="number"/>
+      </label>
+    </p>
+    <p>
+      <button id="permute-in-main">Calculate in Main Thread</button>
+      <button id="permute-in-web-worker">Calculate in Web Worker</button>
+      <button id="clear-permutations">Clear Permutation Data</button>
+    </p>
+    <strong id="permutation-message"></strong>
+    <ul id="permutation-results">
+    </ul>
+
+    <h2>Message Passing and Data</h2>
+    <p>
+      With webworkers, each thread has its own area of memory where
+      variables and objects are stored.  This memory area is inaccessible
+      to the other threads.  This is important for keeping our code
+      thread-safe - if the other threads could access a thread's memory
+      we'd need to implement synchronization constructs like locks and
+      semaphores to ensure that no thread was reading data that another
+      thread was writing to.
+    </p>
+    <p>
+      To communicate between threads, we use <i>message passing</i>.  The
+      messages are added to the thread's event queue, and processed just
+      like other events are.  The contents of the message are therefore
+      <i>copied</i> into the memory space of the recieving thread.  For
+      small and simple messages (like the <strong>n</strong> parameter for
+      our permutation function), this works very well.
+    </p>
+    <p>
+      In other cases, this may become prohibitive.  Say we want to change
+      a color image to be grayscale.  To run this process in a webworker,
+      we'd need to copy the whole image data to the other thread, and copy
+      it back once complete.  The copying process will take some time to
+      accomplish.
+    </p>
+    <p>
+      One possibility would be to break our image data into chunks, and
+      process the chunks independently.  Since the chunks are smaller,
+      the copying will happen faster, so we have less issues with blocking
+      the main thread.  Click on the images below to try this.
+    </p>
+    <strong id="image-chunk-message"></strong>
+    <div id="chunk-image-list">
+      <img src="/images/ace.jpg" alt="ace.jpg"/>
+      <img src="/images/bubble.jpg" alt="bubble.jpg"/>
+      <img src="/images/chess.jpg" alt="chess.jpg"/>
+      <img src="/images/fern.jpg" alt="fern.jpg" />
+      <img src="/images/mobile.jpg" alt="mobile.jpg" />
+    </div>
+
+
+    <script src="https://code.jquery.com/jquery-3.2.1.js" integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE=" crossorigin="anonymous"></script>
+    <script src="script.js" type="text/javascript"></script>
+  </body>
+</html>
